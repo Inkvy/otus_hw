@@ -21,6 +21,7 @@ config = {
 def main():
     files = [] # there will bee files in folder ./log
     pattern_url = []  # there is will be  urls. Later remade to dict, where will be different information from each string
+    pattern_time = [] # there are will be  times. Later remade to dict, where will be different information from each string
     #check existing the folder
     os.path.exists('./log')
     #get list files includes in folder
@@ -46,12 +47,17 @@ def main():
     else:
         with open(path, 'r+') as f:
             for line in f:
-                get_url = re.search(r'GET(.*)HTTP', line).group(1)
+                get_url = re.search(r'GET\s(.*)\sHTTP', line).group(1)
+                get_time = re.search(r'([.\d]+)$', line).group(1)
                 # print(line.strip( ))
                 print(line)
                 pattern_url.append(get_url)
+                pattern_time.append(get_time)
+
     print(pattern_url)
     print(len(pattern_url))
+    print(pattern_time)
+    print(len(pattern_time))
 
 
 
