@@ -10,6 +10,8 @@
 import os
 import gzip
 import re
+from decimal import Decimal
+from statistics import mean, median
 
 config = {
     "REPORT_SIZE": 1000,
@@ -20,9 +22,12 @@ config = {
 
 def main():
     files = [] # there will bee files in folder ./log
-    pattern_url = []  # there is will be  urls. Later remade to dict, where will be different information from each string
-    pattern_time = [] # there are will be  times. Later remade to dict, where will be different information from each string
+    # pattern_url = []  # there is will be  urls. Later remade to dict, where will be different information from each string
+    # pattern_time = [] # there are will be  times. Later remade to dict, where will be different information from each string
+    url_time = dict()
     url_data = dict()
+    total_requests_count = 0
+    total_requests_time = 0
     #check existing the folder
     os.path.exists('./log')
     #get list files includes in folder
@@ -42,26 +47,45 @@ def main():
 
     if '.gz' in newest_log:    
     #output all lines in gz-file
+        total_requests_count = 0
         with gzip.open(path, 'rb') as f:
             for line in f:
                 print(line.decode().strip())
     else:
-        with open(path, 'r+') as f:
+        with open(path, 'r+') as f:     # TODO нужный открыватель лога (open/gzip.open) перед парсингом можно выбрать через тернарный оператор
             for line in f:
                 get_url = re.search(r'GET\s(.*)\sHTTP', line).group(1)
                 get_time = re.search(r'([.\d]+)$', line).group(1)
-                # print(line.strip( ))
-                print(line)
-                pattern_url.append(get_url)
-                pattern_time.append(get_time)
-                url_data.setdefault(get_url, []).append(get_time)
+                # print(line)
+                # pattern_url.append(get_url)
+                # pattern_time.append(get_time)
+                url_time.setdefault(get_url, []).append(Decimal(get_time))
+
+                total_requests_count += 1
+                total_requests_time += Decimal(get_time)
 
 
-    print(pattern_url)
-    print(len(pattern_url))
-    print(pattern_time)
-    print(len(pattern_time))
+    for row in url_time.items():
+        print(row)
+        count_perc = round(100*len(row[1])/total_requests_count, 3)
+        time_perc = Decimal(100*sum(row[1])/total_requests_time).quantize((Decimal('1.000')))
+        time_med = median(row[1]).quantize((Decimal('1.000')))
+        url_data[row[0]] = {'count': len(row[1]),
+                            'count_perc': count_perc,
+                            'time_sum': sum(row[1]),
+                            'time_perc': time_perc,
+                            'time_avg': sum(row[1])/len(row[1]),
+                            'time_max': max(row[1]),
+                            'time_med': time_med}
+
+
+    # print(pattern_url)
+    # print(len(pattern_url))
+    # print(pattern_time)
+    # print(len(pattern_time))
     print(url_data)
+    print(total_requests_count)
+    print(total_requests_time)
 
 
 
@@ -83,6 +107,11 @@ if __name__ == "__main__":
 3. Нашли дату - нужно открыть этот файл
 4. Файл может быть как plain text, так и gz(архив)
 5. Парсить строки файла
+
+TODO:
+0. Библиотека logging + смотри блок ""Распространённые проблемы" в ДЗ
+1. Скрипт должен уметь читать конфиги из другого файла(использовать try..)
+2. "Основная фунциональность. Пункт 4." О каком конфиге идёт речь ? ЧТо за переменные ?
 
 - разобрать строку через регулярное выражение
 
