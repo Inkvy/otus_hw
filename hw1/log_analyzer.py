@@ -74,9 +74,10 @@ def main():
                             'count_perc': count_perc,
                             'time_sum': sum(row[1]),
                             'time_perc': time_perc,
-                            'time_avg': sum(row[1])/len(row[1]),
+                            'time_avg': sum(row[1])/len(row[1]), # TODO округлить до тысячных
                             'time_max': max(row[1]),
                             'time_med': time_med}
+        print(url_data[row[0]])
 
 
     # print(pattern_url)
