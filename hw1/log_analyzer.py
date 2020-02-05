@@ -11,7 +11,7 @@ import os
 import gzip
 import re
 from decimal import Decimal
-from statistics import mean, median
+# from statistics import mean, median
 
 config = {
     "REPORT_SIZE": 1000,
@@ -28,8 +28,8 @@ def main():
     url_data = dict()
     total_requests_count = 0
     total_requests_time = 0
-    #check existing the folder
-    os.path.exists('./log')
+    #check existing the folder - больше подходит для юнит-тестов
+    os.path.exists('./logg')
     #get list files includes in folder
     list_files = os.listdir('./log')
     
@@ -44,6 +44,7 @@ def main():
 
     # create path at newest log
     path = './log/'+newest_log
+    
 
     if '.gz' in newest_log:    
     #output all lines in gz-file
@@ -66,18 +67,19 @@ def main():
 
 
     for row in url_time.items():
-        print(row)
+        # print(row)
         count_perc = round(100*len(row[1])/total_requests_count, 3)
         time_perc = Decimal(100*sum(row[1])/total_requests_time).quantize((Decimal('1.000')))
-        time_med = median(row[1]).quantize((Decimal('1.000')))
+        # time_med = median(row[1]).quantize((Decimal('1.000')))
         url_data[row[0]] = {'count': len(row[1]),
                             'count_perc': count_perc,
                             'time_sum': sum(row[1]),
                             'time_perc': time_perc,
                             'time_avg': sum(row[1])/len(row[1]), # TODO округлить до тысячных
                             'time_max': max(row[1]),
-                            'time_med': time_med}
-        print(url_data[row[0]])
+                            'time_med': time_med
+                            }
+        # print(url_data[row[0]])
 
 
     # print(pattern_url)
@@ -111,10 +113,18 @@ if __name__ == "__main__":
 
 TODO:
 0. Библиотека logging + смотри блок ""Распространённые проблемы" в ДЗ
+0.1. Путь не должен зависить от ОС. Он одинаково должен браться как из Windows, так и Linux
 1. Скрипт должен уметь читать конфиги из другого файла(использовать try..)
+    - На вход скрипту передаётся параметр - путь до файла или папки(а которой он будет искать самый свежий файл, который подойдёт под требуемый шаблон), который нужно открыть
+    - Если по данному пути нет нужного файла, то выводим сообщение "нет такого файла"
+    - Если файл не в нужном формате, то ошибку "Не верный формат"
+    - Если параметр на вход не передан, то открывать "по умолчанию" из папки /log
 2. "Основная фунциональность. Пункт 4." О каком конфиге идёт речь ? ЧТо за переменные ?
+3. "Основная фунциональность. Пункт 2." Нужно парсить название файла, который разбираю и сохранять его (например, в папке с отработанными логами, или и так уже сохраняем обработанные логи, тогда проверять, что уже есть обработанные на данную дату)
 
 - разобрать строку через регулярное выражение
+
+- как передать переменную при вызове скрипта
 
 - когда фильтрую по названи файла, то использовать метод "начинается с"
 
